@@ -1,11 +1,13 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, ClipboardList, Users, FileText, Download } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Layout() {
   const { employeeData, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // 🔹 Handle logout safely
   const handleSignOut = async () => {
@@ -71,6 +73,12 @@ export default function Layout() {
               <span className="text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
                 E-Batta
               </span>
+              <button
+                className="sm:hidden p-2"
+                onClick={() => setMenuOpen(!menuOpen)}
+              >
+                ☰
+              </button>
 
               {/* Nav Links */}
               <div className="hidden sm:flex items-center gap-2">
@@ -101,6 +109,42 @@ export default function Layout() {
                 })}
               </div>
             </div>
+
+            {menuOpen && (
+              <div className="sm:hidden bg-white border-t border-gray-200 px-4 py-3 space-y-2">
+
+                {/* User Info */}
+                <div className="mb-3">
+                  <div className="font-semibold">{employeeData.emp_name}</div>
+                  <div className="text-xs text-gray-500">{employeeData.emp_code}</div>
+                </div>
+
+                {/* Nav Links */}
+                {getNavLinks().map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
+                    >
+                      <Icon className="w-4 h-4" />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+
+                {/* Logout */}
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded-md"
+                >
+                  Sign Out
+                </button>
+
+              </div>
+            )}
 
             {/* 🔷 Right */}
             <div className="flex items-center gap-4">
