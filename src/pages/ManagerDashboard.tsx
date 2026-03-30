@@ -170,15 +170,6 @@ export default function ManagerDashboard() {
     loadEntries();
   };
 
-  const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-
-
-
   return (
     <div className="space-y-6">
 
@@ -306,12 +297,24 @@ export default function ManagerDashboard() {
                     className="flex justify-between items-center px-4 py-3 cursor-pointer bg-gray-50 hover:bg-gray-100 transition"
                   >
                     <div>
-                      <p className="font-semibold text-gray-800">
-                        {empName}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {empEntries.length} entries
-                      </p>
+                      <div className="flex items-center gap-3">
+
+                        {/* Avatar */}
+                        <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold">
+                          {empName?.charAt(0)}
+                        </div>
+
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-800 truncate">
+                            {empName}
+                          </p>
+
+                          <p className="text-xs text-gray-500 truncate">
+                            {empEntries.length} entries • {empEntries[0]?.emp_code || 'EMP'}
+                          </p>
+                        </div>
+
+                      </div>
                     </div>
 
                     <span className="text-sm text-blue-600 font-medium">
@@ -319,12 +322,11 @@ export default function ManagerDashboard() {
                     </span>
                   </div>
 
-                  {/* 🔷 EXPAND */}
                   {expandedEmployee === key && (
-                    <div className="border-t p-4 bg-white">
+                    <div className="border-t bg-white">
 
                       {/* 🔥 TOP BAR */}
-                      <div className="flex justify-between items-center mb-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4">
 
                         <h3 className="text-sm font-semibold text-gray-700">
                           Entries
@@ -332,110 +334,137 @@ export default function ManagerDashboard() {
 
                         <button
                           onClick={() => handleApproveAll(empEntries)}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition"
+                          className="flex items-center justify-center gap-1 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition"
                         >
                           ✔ Approve All
                         </button>
 
                       </div>
 
-                      {/* 🔷 TABLE HEADER */}
-                      <div className="grid grid-cols-[100px_100px_1fr_90px_140px_120px] gap-3 text-xs font-semibold text-gray-500 border-b pb-2 mb-2">
-                        <div>Date</div>
-                        <div>Type</div>
-                        <div>Work</div>
-                        <div>Batta</div>
-                        <div>Entered By</div>
-                        <div className="text-right">Action</div>
-                      </div>
+                      {/* 🔥 TABLE WRAPPER */}
+                      <div className="overflow-x-auto">
+                        <div className="min-w-[750px] px-4 pb-4">
 
-                      {/* 🔷 ROWS */}
-                      <div className="space-y-2">
-
-                        {empEntries.map((entry: DailyEntry) => (
-                          <div
-                            key={entry.id}
-                            className="grid grid-cols-[100px_100px_1fr_90px_140px_120px] gap-3 items-center bg-gray-50 hover:bg-gray-100 p-3 rounded-xl transition"
+                          {/* 🔷 TABLE HEADER (CENTER ALIGN) */}
+                          <div className="grid 
+      grid-cols-[90px_80px_1fr_60px_90px_100px] 
+      sm:grid-cols-[120px_110px_1fr_80px_140px_130px] 
+      gap-3 sm:gap-4 
+      text-xs font-semibold text-gray-500 
+      border-b pb-2 mb-2 
+      sticky top-0 bg-white z-10 text-center"
                           >
+                            <div>Date</div>
+                            <div>Type</div>
+                            <div>Work</div>
+                            <div>Batta</div>
+                            <div>Entered By</div>
+                            <div>Action</div>
+                          </div>
 
-                            {/* Date */}
-                            <div className="text-sm text-gray-700">
-                              {formatDate(entry.date)}
-                            </div>
+                          {/* 🔷 ROWS */}
+                          <div className="space-y-3">
 
-                            {/* 🔥 Type + Time */}
-                            <div>
-                              <span className={`text-xs font-medium px-2 py-1 rounded-full
-                          ${entry.duty_type === 'night'
-                                  ? 'bg-indigo-100 text-indigo-700'
-                                  : 'bg-green-100 text-green-700'
-                                }`}>
-                                {entry.duty_type?.toUpperCase()}
-                              </span>
-
-                              {entry.duty_type === "night" && (
-                                <p className="text-[10px] text-gray-500 mt-1">
-                                  {entry.duty_time}
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Work */}
-                            <div className="text-sm text-gray-600 truncate">
-                              {entry.work_description}
-                            </div>
-
-                            {/* Batta */}
-                            <div>
-                              <input
-                                type="number"
-                                value={editedBatta[entry.id] ?? entry.batta_amount}
-                                onChange={(e) =>
-                                  handleBattaChange(entry.id, Number(e.target.value))
-                                }
-                                className="w-20 px-2 py-1 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
-                              />
-                            </div>
-
-                            {/* Entered By */}
-                            <div className="text-sm text-gray-500">
-                              {entry.entered_name}
-                            </div>
-
-                            {/* 🔥 ACTIONS */}
-                            <div className="flex justify-end gap-2">
-
-                              {/* Approve */}
-                              <button
-                                onClick={() => handleApprove(entry)}
-                                className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                            {empEntries.map((entry) => (
+                              <div
+                                key={entry.id}
+                                className="grid 
+            grid-cols-[90px_80px_1fr_60px_90px_100px] 
+            sm:grid-cols-[120px_110px_1fr_80px_140px_130px] 
+            gap-3 sm:gap-4 
+            items-start 
+            bg-white border border-gray-100 
+            hover:border-blue-200 hover:bg-blue-50/40 
+            p-3 sm:p-4 
+            rounded-xl transition-all duration-200 shadow-sm"
                               >
-                                <Check className="w-4 h-4" />
-                              </button>
 
-                              {/* Reject */}
-                              <button
-                                onClick={() => handleReject(entry.id)}
-                                className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
+                                {/* 📅 Date */}
+                                <div className="text-sm text-gray-700 font-medium whitespace-nowrap text-center sm:text-left">
+                                  {new Date(entry.date).toLocaleDateString('en-GB')}
+                                </div>
 
-                              {/* Delete */}
-                              <button
-                                onClick={() => handleDelete(entry.id)}
-                                className="p-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                                {/* 🔥 Type + Time (desktop only time) */}
+                                <div className="flex flex-col items-center sm:items-start">
+                                  <span
+                                    className={`text-xs font-semibold px-2.5 py-1 rounded-full
+              ${entry.duty_type === 'night'
+                                        ? 'bg-indigo-100 text-indigo-700'
+                                        : 'bg-green-100 text-green-700'
+                                      }`}
+                                  >
+                                    {entry.duty_type?.toUpperCase()}
+                                  </span>
 
-                            </div>
+                                  {/* 👇 Night time only desktop */}
+                                  {entry.duty_type === "night" && (
+                                    <span className="text-[10px] text-gray-500 mt-1 hidden sm:block">
+                                      {entry.duty_time}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* 📝 Work */}
+                                <div className="text-sm text-gray-700 leading-relaxed break-words">
+                                  {entry.work_description}
+                                </div>
+
+                                {/* 💰 Batta */}
+                                <div className="flex items-center justify-center">
+                                  <input
+                                    type="number"
+                                    value={editedBatta[entry.id] ?? entry.batta_amount}
+                                    onChange={(e) => {
+                                      const value = e.target.value.slice(0, 3);
+                                      handleBattaChange(entry.id, Number(value));
+                                    }}
+                                    className="w-16 text-center px-1.5 py-1 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                  />
+                                </div>
+
+                                {/* 👤 Entered By */}
+                                <div
+                                  className="text-sm text-gray-500 
+              truncate max-w-[80px] 
+              sm:max-w-none sm:truncate-0"
+                                  title={entry.entered_name}
+                                >
+                                  {entry.entered_name}
+                                </div>
+
+                                {/* 🔥 ACTIONS */}
+                                <div className="flex justify-center sm:justify-end gap-2">
+
+                                  <button
+                                    onClick={() => handleApprove(entry)}
+                                    className="p-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-sm"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleReject(entry.id)}
+                                    className="p-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-sm"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleDelete(entry.id)}
+                                    className="p-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition shadow-sm"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+
+                                </div>
+
+                              </div>
+                            ))}
 
                           </div>
-                        ))}
 
+                        </div>
                       </div>
-
                     </div>
                   )}
 

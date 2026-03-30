@@ -1223,117 +1223,153 @@ export default function EmployeeDashboard() {
 
       <div className="bg-white rounded-xl shadow-sm border p-5">
 
+        {/* 🔷 HEADER */}
         <h2 className="font-semibold text-gray-700 mb-4">
           My Entries ({currentPeriod?.month})
         </h2>
 
-
-
         {entryHistory.length === 0 ? (
           <p className="text-sm text-gray-500">No entries yet</p>
         ) : (
-          <div>
+          <>
 
-            {/* 🔷 GRID CLASS (COMMON FOR HEADER + ROWS) */}
-            {(() => {
-              const gridClass = hasNight
-                ? 'grid-cols-[110px_100px_130px_1fr_110px_150px]'
-                : 'grid-cols-[110px_100px_1fr_110px_150px]';
+            {/* ================= 💻 DESKTOP TABLE ================= */}
+            <div className="hidden sm:block overflow-x-auto">
+              <div className="min-w-[700px]">
 
-              return (
-                <>
-                  {/* 🔷 HEADER */}
-                  <div
-                    className={`grid ${gridClass} gap-4 text-xs font-semibold text-gray-500 border-b pb-2 mb-2`}
-                  >
-                    <div>Date</div>
-                    <div>Type</div>
+                {(() => {
+                  const gridClass = hasNight
+                    ? 'grid-cols-[110px_100px_130px_1fr_110px_150px]'
+                    : 'grid-cols-[110px_100px_1fr_110px_150px]';
 
-                    {hasNight && <div>Time</div>}
+                  return (
+                    <>
+                      {/* HEADER */}
+                      <div className={`grid ${gridClass} gap-4 text-xs font-semibold text-gray-500 border-b pb-2 mb-2`}>
+                        <div>Date</div>
+                        <div>Type</div>
+                        {hasNight && <div>Time</div>}
+                        <div>Work</div>
+                        <div className="text-right">Batta</div>
+                        <div className="text-right pr-2">Status</div>
+                      </div>
 
-                    <div>Work</div>
-                    <div className="text-right">Batta</div>
-                    <div className="text-right pr-2">Status</div>
-                  </div>
+                      {/* ROWS */}
+                      <div className="space-y-2">
+                        {entryHistory.map((entry) => {
+                          const isNight = entry.duty_type === 'night';
 
-                  {/* 🔷 ROWS */}
-                  <div className="space-y-2">
+                          const typeLabel = entry.duty_type || entry.entry_type;
 
-                    {entryHistory.map((entry) => {
-                      const isNight = entry.duty_type === 'night';
-
-                      const typeLabel =
-                        entry.duty_type || entry.entry_type;
-
-                      const typeColor =
-                        entry.entry_type === 'leave'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : entry.entry_type === 'holiday'
-                            ? 'bg-indigo-100 text-indigo-700'
-                            : entry.entry_type === 'sunday'
-                              ? 'bg-gray-200 text-gray-700'
-                              : isNight
+                          const typeColor =
+                            entry.entry_type === 'leave'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : entry.entry_type === 'holiday'
                                 ? 'bg-indigo-100 text-indigo-700'
-                                : 'bg-green-100 text-green-700';
+                                : entry.entry_type === 'sunday'
+                                  ? 'bg-gray-200 text-gray-700'
+                                  : isNight
+                                    ? 'bg-indigo-100 text-indigo-700'
+                                    : 'bg-green-100 text-green-700';
 
-                      return (
-                        <div
-                          key={entry.id}
-                          className={`grid ${gridClass} gap-4 items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition`}
-                        >
-
-                          {/* Date */}
-                          <div className="text-sm text-gray-700 whitespace-nowrap">
-                            {formatDate(entry.date)}
-                          </div>
-
-                          {/* Type */}
-                          <div className="text-xs font-medium">
-                            <span className={`px-2 py-1 rounded-full whitespace-nowrap ${typeColor}`}>
-                              {typeLabel?.toUpperCase()}
-                            </span>
-                          </div>
-
-                          {/* Time */}
-                          {hasNight && (
-                            <div className="text-sm text-gray-600 whitespace-nowrap">
-                              {isNight ? entry.duty_time : '-'}
-                            </div>
-                          )}
-
-                          {/* Work */}
-                          <div
-                            className="text-sm text-gray-600 truncate"
-                            title={entry.work_description}
-                          >
-                            {entry.work_description}
-                          </div>
-
-                          {/* Batta */}
-                          <div className="text-sm text-right font-semibold text-gray-700 whitespace-nowrap">
-                            ₹ {entry.batta_amount || 0}
-                          </div>
-
-                          {/* Status */}
-                          <div className="flex justify-end pr-2">
-                            <span
-                              className={`text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap ${getStatusColor(entry.status)}`}
+                          return (
+                            <div
+                              key={entry.id}
+                              className={`grid ${gridClass} gap-4 items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition`}
                             >
-                              {entry.status.toUpperCase()}
-                            </span>
-                          </div>
 
-                        </div>
-                      );
-                    })}
+                              <div className="text-sm text-gray-700 whitespace-nowrap">
+                                {formatDate(entry.date)}
+                              </div>
+
+                              <div className="text-xs font-medium">
+                                <span className={`px-2 py-1 rounded-full whitespace-nowrap ${typeColor}`}>
+                                  {typeLabel?.toUpperCase()}
+                                </span>
+                              </div>
+
+                              {hasNight && (
+                                <div className="text-sm text-gray-600 whitespace-nowrap">
+                                  {isNight ? entry.duty_time : '-'}
+                                </div>
+                              )}
+
+                              <div className="text-sm text-gray-600 truncate">
+                                {entry.work_description}
+                              </div>
+
+                              <div className="text-sm text-right font-semibold text-gray-700 whitespace-nowrap">
+                                ₹ {entry.batta_amount || 0}
+                              </div>
+
+                              <div className="flex justify-end pr-2">
+                                <span className={`text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap ${getStatusColor(entry.status)}`}>
+                                  {entry.status.toUpperCase()}
+                                </span>
+                              </div>
+
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  );
+                })()}
+
+              </div>
+            </div>
+
+            {/* ================= 📱 MOBILE CARDS ================= */}
+            <div className="sm:hidden space-y-3">
+
+              {entryHistory.map((entry) => {
+                const isNight = entry.duty_type === 'night';
+
+                return (
+                  <div
+                    key={entry.id}
+                    className="bg-gray-50 border rounded-xl p-4 shadow-sm hover:shadow-md transition"
+                  >
+
+                    {/* Top row */}
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-semibold text-gray-800">
+                        {formatDate(entry.date)}
+                      </span>
+
+                      <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(entry.status)}`}>
+                        {entry.status.toUpperCase()}
+                      </span>
+                    </div>
+
+                    {/* Type + Time */}
+                    <div className="text-xs text-gray-500 mb-2">
+                      {entry.duty_type?.toUpperCase()}
+                      {isNight && ` (${entry.duty_time})`}
+                    </div>
+
+                    {/* Work */}
+                    <div className="text-sm text-gray-700 mb-3">
+                      {entry.work_description}
+                    </div>
+
+                    {/* Bottom */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">Batta</span>
+                      <span className="font-semibold text-gray-800">
+                        ₹ {entry.batta_amount || 0}
+                      </span>
+                    </div>
 
                   </div>
-                </>
-              );
-            })()}
+                );
+              })}
 
-          </div>
+            </div>
+
+          </>
         )}
+
       </div>
     </div>
   );
